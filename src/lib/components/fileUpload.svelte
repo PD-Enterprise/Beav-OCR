@@ -6,12 +6,19 @@
 	let isOver = $state(false);
 	let error: string | undefined = $state(undefined);
 
+	const MAX_FILE_SIZE = 9 * 1024 * 1024;
+
 	function setImage() {
 		if (!input || !input.files) {
 			error = 'No file selected';
 			return;
 		}
 		const file = input.files[0];
+		if (file.size >= MAX_FILE_SIZE) {
+			error = 'File must be smaller than 9MB';
+			return;
+		}
+		error = undefined;
 		image.value = file;
 	}
 	function handleDragOver(event: DragEvent) {

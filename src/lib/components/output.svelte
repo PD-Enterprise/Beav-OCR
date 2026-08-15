@@ -1,16 +1,33 @@
 <script lang="ts">
+	import { uploadStream } from '$lib/api/upload';
 	import { image } from '$lib/store/store.svelte';
 
 	let extractedText: string = $state('');
+	let isExtracting: boolean = $state(false);
 
 	async function extract() {
-		extractedText = 'Extracting text...';
+		isExtracting = true;
+		extractedText = '';
+		try {
+			await uploadStream(image.value, (chunk) => {
+				if (chunk.type === 'delta' && chunk.delta) {
+					extractedText += chunk.delta;
+				} else if (chunk.type === 'error') {
+					extractedText = chunk.message;
+				}
+			});
+		} catch (err) {
+			extractedText = err instanceof Error ? err.message : 'Something went wrong.';
+		} finally {
+			isExtracting = false;
+		}
 	}
 	function copy() {
 		navigator.clipboard.writeText(extractedText);
 	}
 	function clear() {
 		image.value = undefined;
+		extractedText = '';
 	}
 </script>
 
@@ -21,8 +38,10 @@
 		readonly>{extractedText}</textarea
 	>
 	<div class="flex flex-row justify-between gap-2 p-2">
-		<button class="btn flex-1 btn-info" onclick={extract}>Extract</button>
-		<button class="btn flex-1 btn-primary" onclick={copy}>Copy</button>
+		<button class="btn flex-1 btn-info" onclick={extract} disabled={isExtracting}>
+			{isExtracting ? 'Extracting...' : 'Extract'}
+		</button>
+		<button class="btn flex-1 btn-primary" onclick={copy} disabled={!extractedText}>Copy</button>
 		<button class="btn flex-1 btn-secondary" onclick={clear}>Clear Image</button>
 	</div>
 </div>

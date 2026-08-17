@@ -7,17 +7,24 @@
 
 	async function extract() {
 		isExtracting = true;
-		extractedText = '';
+		extractedText = 'Extracting...';
+		let firstChunk = true;
 		try {
 			await uploadStream(image.value, (chunk) => {
 				if (chunk.type === 'delta' && chunk.delta) {
+					if (firstChunk) {
+						extractedText = '';
+						firstChunk = false;
+					}
 					extractedText += chunk.delta;
 				} else if (chunk.type === 'error') {
-					extractedText = chunk.message;
+					extractedText = 'There was an error, please try again.';
 				}
 			});
+
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (err) {
-			extractedText = err instanceof Error ? err.message : 'Something went wrong.';
+			extractedText = 'Something went wrong.';
 		} finally {
 			isExtracting = false;
 		}

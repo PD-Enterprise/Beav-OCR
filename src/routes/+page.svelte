@@ -12,7 +12,7 @@
 	{#if !image.value}
 		<FileUpload />
 	{:else}
-		<div class="flex flex-row gap-2 p-2">
+		<div class="flex flex-col gap-2 p-2 md:flex-row">
 			<Image image={image.value} />
 			<Output />
 		</div>

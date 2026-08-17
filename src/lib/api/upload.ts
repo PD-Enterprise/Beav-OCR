@@ -3,11 +3,14 @@ import config from './apiConfig';
 export type OCRStreamChunk =
 	| { type: 'delta'; delta: string }
 	| {
-			type: 'usage';
-			usage: { promptTokens: number; completionTokens: number; totalTokens: number };
-	  }
+		type: 'usage';
+		usage: { promptTokens: number; completionTokens: number; totalTokens: number };
+	}
 	| { type: 'done' }
 	| { type: 'error'; message: string };
+
+const MAX_FILE_SIZE = 20 * 1024 * 1024;
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 export async function uploadStream(
 	file: File | undefined,
@@ -16,7 +19,10 @@ export async function uploadStream(
 	if (!file) {
 		throw new Error('No file selected');
 	}
-	if (file.size >= 9 * 1024 * 1024) {
+	if (!ALLOWED_TYPES.includes(file.type)) {
+		throw new Error('Only JPEG, PNG, and WebP files are accepted');
+	}
+	if (file.size >= MAX_FILE_SIZE) {
 		throw new Error('File must be smaller than 9MB');
 	}
 

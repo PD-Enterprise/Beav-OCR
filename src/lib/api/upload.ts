@@ -23,7 +23,7 @@ export async function uploadStream(
 		throw new Error('Only JPEG, PNG, and WebP files are accepted');
 	}
 	if (file.size >= MAX_FILE_SIZE) {
-		throw new Error('File must be smaller than 9MB');
+		throw new Error('File must be smaller than 20MB');
 	}
 
 	const formData = new FormData();
